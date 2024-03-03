@@ -2,6 +2,10 @@ import NextAuth, { type NextAuthConfig } from "next-auth";
 import GitHub from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { type Provider } from "@auth/core/providers";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const providers: Provider[] = [GitHub];
 
@@ -29,6 +33,11 @@ export const config = {
   theme: {
     logo: "https://next-auth.js.org/img/logo/logo-sm.png",
   },
+  session: {
+    strategy: "database",
+    maxAge: 86400,
+  },
+  adapter: PrismaAdapter(prisma),
   providers: providers,
   callbacks: {
     authorized({ request, auth }) {
