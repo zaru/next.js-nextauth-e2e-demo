@@ -66,7 +66,6 @@ const config = {
     maxAge: 86400,
   },
   ...(process.env.APP_ENV === "test" ? { jwt: jwtTestEnv } : {}),
-  adapter: PrismaAdapter(prisma),
   providers: providers,
   callbacks: {
     authorized({ request, auth }) {
