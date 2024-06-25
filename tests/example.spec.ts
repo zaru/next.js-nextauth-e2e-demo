@@ -1,18 +1,27 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
-
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
+test("ログインしていないとリダイレクトされる", async ({ page }) => {
+  await page.goto("http://localhost:3000/protect");
+  const currentUrl = page.url();
+  const urlWithoutQuery = new URL(currentUrl);
+  const pathname = urlWithoutQuery.pathname;
+  expect(pathname).toBe("/api/auth/signin");
 });
 
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+test("ログイン状態でアクセスすると、ユーザ情報が表示される", async ({
+  browser,
+}) => {
+  const context = await browser.newContext();
+  await context.addCookies([
+    {
+      name: "authjs.session-token",
+      value: "dummy-jwt-token",
+      domain: "localhost:3000",
+      path: "/",
+    },
+  ]);
 
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+  const page = await context.newPage();
+  await page.goto("http://localhost:3000/protect");
+  await expect(page.locator("pre")).toContainText("zaru");
 });
